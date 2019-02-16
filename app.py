@@ -22,7 +22,6 @@ nb_epoch=5
 app = Flask(__name__)
 
 model =None
-#page to_train
 @app.route('/')
 def to_train():
   return render_template("Home.html")
@@ -31,28 +30,9 @@ def to_train():
 @app.route("/loadmodel/", methods=['GET'])
 def load():
   global model
-  class NN(nn.Module):
-    def __init__(self):
-        super(NN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 20, 3, 1)
-        self.conv2 = nn.Conv2d(20, 50, 3, 1)
-        self.fc1 = nn.Linear(5*5*50, 500)
-        self.fc2 = nn.Linear(500, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.max_pool2d(x, 2, 2)#13
-        x = F.relu(self.conv2(x))#11
-        x = F.max_pool2d(x, 2, 2)#5*5*50
-        x = x.view(-1, 5*5*50)#
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
-  checkpoint = torch.load("mnist_cnn.pt")
-  model = NN()
-  model.load_state_dict(checkpoint)
+  model = get_model()
   print("model loaded!")
-  return "Your model has been loaded"  
+  return render_template("Home.html")
 
 
 def get_model():
@@ -91,7 +71,6 @@ def index():
         img = Image.open(io.BytesIO(binary_data))
         img.thumbnail((28,28))
         img.save("data_img/draw.png")
-
     return render_template('index.html', prediction=prediction)
 
 #display prediction
